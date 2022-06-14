@@ -1,29 +1,32 @@
-# get images from a google search
-# and save them in a folder
+# get full resolution images from google
+# and save them to a folder
 
-from distutils.log import error
-import os
-import sys
-import requests
 from bs4 import BeautifulSoup
+import requests
+import os
 
 
-def get_images(search_term, number_of_images):
-    # get the url
-    url = 'https://www.google.com/search?q=' + search_term + '&source=lnms&tbm=isch'
-    # get the html
-    html = requests.get(url).text
+def get_images(query, num_images):
+    url = "https://www.google.com/search?q=" + query + "&source=lnms&tbm=isch"
+    print(url)
+    # get the html from the url
+    response = requests.get(url)
     # parse the html
-    soup = BeautifulSoup(html, 'html.parser')
-    # get all links
-    links = soup.find_all('a')
-    
-    # if ends in jpg, png, jpeg
-    def is_image(link):
-        return link.get('href') and link.get('href').endswith(('.jpg', '.png', '.jpeg'))
-    images = [link.get('href') for link in links if is_image(link)]
-    print(images)
+    soup = BeautifulSoup(response.text, "html.parser")
+    # get the image links
+    links = []
+    for img in soup.find_all("img"):
+        if img.get("src"):
+            links.append(img.get("src"))
+    # download the images
+    x = 0
+    for link in links:
+        x += 1
+        requests.get(link)
+        with open("images/" + query + str(x) + ".jpg", "wb") as f:
+            f.write(response.content)
+            f.close()
+        print("could not download image")
 
 
-
-get_images("Biohackers", 10)
+get_images("cat", 10)
