@@ -18,21 +18,12 @@ def get_images(search_term, number_of_images):
     # get all links
     links = soup.find_all('a')
     
-    # get the images for the first 10 links
-    for link in links[:number_of_images]:
-        try:
-            # get the image url
-            img_url = link.get('href')[7:].split('&sa=')[0]
-            print(link)
-            # get the image name
-            img_name = img_url.split('/')[-1]
-            # get the image
-            img_data = requests.get(img_url).content
-            # save the image
-            with open(os.path.join('images', img_name), 'wb') as handler:
-                handler.write(img_data)
-        except:
-            error('Error: image not found')
+    # if ends in jpg, png, jpeg
+    def is_image(link):
+        return link.get('href') and link.get('href').endswith(('.jpg', '.png', '.jpeg'))
+    images = [link.get('href') for link in links if is_image(link)]
+    print(images)
+
 
 
 get_images("Biohackers", 10)
